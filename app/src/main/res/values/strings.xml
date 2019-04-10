@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">androidbackgroundworks</string>
+    <string name="work_manager_example_text">Work Manager Example</string>
+    <string name="start_work_manager_work_text">Start Work Manager Work</string>
 </resources>
