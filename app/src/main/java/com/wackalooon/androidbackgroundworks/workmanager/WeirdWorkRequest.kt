@@ -24,8 +24,10 @@ class WeirdWorkRequest(
 
     override fun doWork(): Result {
         val input = inputData.getString(WORK_INPUT_KEY)
-        requireNotNull(input)
-        return Result.success(getResultDataFor("WE DID IT = $input"))
+
+        requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
+
+        return Result.success(getResultDataFor("Weird request finished from input = $input"))
     }
 
     private fun getResultDataFor(result: String): Data {

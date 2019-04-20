@@ -3,21 +3,20 @@ package com.wackalooon.androidbackgroundworks.workmanager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.wackalooon.androidbackgroundworks.LifecycleAwareActivity
 import com.wackalooon.androidbackgroundworks.R
 import kotlinx.android.synthetic.main.activity_work_manager.*
 
-class WorkManagerActivity : LifecycleAwareActivity() {
+class WorkManagerActivity : AppCompatActivity() {
     companion object {
         fun createIntent(context: Context): Intent {
             return Intent(context, WorkManagerActivity::class.java)
         }
     }
-
-    private val timeOfStart = lazy { System.currentTimeMillis() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,72 +32,60 @@ class WorkManagerActivity : LifecycleAwareActivity() {
     private fun importantStuff() {
         setText("Started")
         // create workers
-        val workRequest = WeirdWorkRequest.createWorkRequest("do it!")
+        val workRequest = WeirdWorkRequest.createWorkRequest("Common")
 
-        val workRequestCoroutines = CoroutineWorkRequest.createWorkRequest("do it via coroutines!!")
+        val workRequestCoroutines = CoroutineWorkRequest.createWorkRequest("Coroutine")
+
+        val workRequestRx = RxWorkRequest.createWorkRequest("Reactive jet")
 
         // enqueue them in required order
         val work = WorkManager.getInstance()
-            .beginWith(workRequest)
+            //begin unique allows us to track work status later, it's not necessary otherwise
+            .beginUniqueWork(RxWorkRequest.WORK_TAG, ExistingWorkPolicy.REPLACE, workRequest)
             .then(workRequestCoroutines)
+            .then(workRequestRx)
             .enqueue()
 
         // observe state of resulted work
         work.state.observe(this, Observer { state ->
-            setText(state.toString())
+            setText("work.state.observe $state")
         })
 
         // listen for result
         work.result.addListener(
-            { setText("Finished!") },
+            { setText("work.result.addListener: Finished!") },
             { command -> command?.run() })
 
         // observe particular worker state
         WorkManager.getInstance()
-            .getWorkInfosByTagLiveData(WeirdWorkRequest.WORK_TAG)
-            .observe(this, observer)
-
-        WorkManager.getInstance()
-            .getWorkInfosByTagLiveData(CoroutineWorkRequest.WORK_TAG)
-            .observe(this, observer)
+            .getWorkInfosForUniqueWorkLiveData(RxWorkRequest.WORK_TAG)
+            .observe(this, rxWorkerObserver)
     }
 
-    private val observer = Observer<List<WorkInfo>> { state ->
+    private val rxWorkerObserver = createWorkerObserver(RxWorkRequest.WORK_TAG, RxWorkRequest.WORK_RESULT_KEY)
+
+    private fun createWorkerObserver(workerTag: String, resultTag: String) = Observer<List<WorkInfo>> { state ->
         if (state.isNullOrEmpty()) {
-            setText("Empty")
+            setText("state is empty")
         } else {
-            // We only care about the one output status.
-            // Every continuation has only one worker tagged TAG_OUTPUT
-            val workInfo = state[0]
+            // We only care about the final worker output status.
+            val workInfo = state.firstOrNull{ it.tags.contains(workerTag)}
 
-            setText(workInfo.tags.toString())
+            if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
 
-            when (workInfo.state) {
-                WorkInfo.State.ENQUEUED,
-                WorkInfo.State.RUNNING,
-                WorkInfo.State.FAILED,
-                WorkInfo.State.BLOCKED,
-                WorkInfo.State.CANCELLED -> setText(workInfo.state.name)
+                val successOutputData = workInfo.outputData
+                val output = successOutputData.getString(resultTag)
 
-                WorkInfo.State.SUCCEEDED -> {
-                    setText(workInfo.state.name)
-
-                    val successOutputData = workInfo.outputData
-                    val firstValue = successOutputData.getString(WeirdWorkRequest.WORK_RESULT_KEY)
-                    val secondValue = successOutputData.getInt(CoroutineWorkRequest.WORK_RESULT_KEY, -1)
-
-                    setText("Output $firstValue - $secondValue")
-                }
+                setText(
+                    "work status: ${workInfo.state.name}" +
+                            "\n output: $output"
+                )
             }
         }
     }
 
-    private fun setText(text: String) {
-        val newText = "${work_manager_status.text}\ntime: ${getTime()} text: $text"
+    private fun setText(text: String) = runOnUiThread {
+        val newText = "${work_manager_status.text}\n$text"
         work_manager_status.text = newText
-    }
-
-    private fun getTime(): Long {
-        return System.currentTimeMillis() - timeOfStart.value
     }
 }
