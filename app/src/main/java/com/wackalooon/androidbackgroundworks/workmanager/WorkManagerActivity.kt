@@ -12,15 +12,13 @@ import com.wackalooon.androidbackgroundworks.R
 import kotlinx.android.synthetic.main.activity_work_manager.*
 
 class WorkManagerActivity : AppCompatActivity() {
-    companion object {
-        fun createIntent(context: Context): Intent {
-            return Intent(context, WorkManagerActivity::class.java)
-        }
+
+    private val rxWorkerObserver by lazy {
+        createWorkerObserver(RxWorkRequest.WORK_TAG, RxWorkRequest.WORK_RESULT_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         setContentView(R.layout.activity_work_manager)
 
@@ -62,13 +60,11 @@ class WorkManagerActivity : AppCompatActivity() {
             .observe(this, rxWorkerObserver)
     }
 
-    private val rxWorkerObserver = createWorkerObserver(RxWorkRequest.WORK_TAG, RxWorkRequest.WORK_RESULT_KEY)
-
     private fun createWorkerObserver(workerTag: String, resultTag: String) = Observer<List<WorkInfo>> { state ->
         if (state.isNullOrEmpty()) {
             setText("state is empty")
         } else {
-            // We only care about the final worker output status.
+            // We only care about the final worker output status, state contains all workers in chain
             val workInfo = state.firstOrNull{ it.tags.contains(workerTag)}
 
             if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
@@ -87,5 +83,11 @@ class WorkManagerActivity : AppCompatActivity() {
     private fun setText(text: String) = runOnUiThread {
         val newText = "${work_manager_status.text}\n$text"
         work_manager_status.text = newText
+    }
+
+    companion object {
+        fun createIntent(context: Context): Intent {
+            return Intent(context, WorkManagerActivity::class.java)
+        }
     }
 }
