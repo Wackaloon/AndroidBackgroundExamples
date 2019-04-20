@@ -2,15 +2,18 @@ package com.wackalooon.androidbackgroundworks.workmanager
 
 import android.content.Context
 import androidx.work.*
+import kotlinx.coroutines.*
 
 
-class WeirdWorkRequest(
+class CoroutineWorkRequest(
     appContext: Context,
     workerParams: WorkerParameters
-) : Worker(appContext, workerParams) {
+) : CoroutineWorker(appContext, workerParams) {
+
+    override val coroutineContext = Dispatchers.IO
 
     companion object {
-        const val WORK_TAG = "WeirdWorkRequest"
+        const val WORK_TAG = "CoroutineWorkRequest"
         const val WORK_RESULT_KEY = "${WORK_TAG}OutputKey"
         private const val WORK_INPUT_KEY = "${WORK_TAG}InputKey"
 
@@ -22,10 +25,18 @@ class WeirdWorkRequest(
         }
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result = coroutineScope  {
         val input = inputData.getString(WORK_INPUT_KEY)
         requireNotNull(input)
-        return Result.success(getResultDataFor("WE DID IT = $input"))
+        val job = async {
+            calculateDataSynchronously(input)
+        }
+        val result = job.await()
+        return@coroutineScope Result.success(getResultDataFor(result))
+    }
+
+    private fun calculateDataSynchronously(input: String): String {
+        return "WE DID IT VIA COROUTINES = $input"
     }
 
     private fun getResultDataFor(result: String): Data {
