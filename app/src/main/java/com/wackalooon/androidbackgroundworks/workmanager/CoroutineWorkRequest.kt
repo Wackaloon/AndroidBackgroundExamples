@@ -2,14 +2,14 @@ package com.wackalooon.androidbackgroundworks.workmanager
 
 import android.content.Context
 import androidx.work.CoroutineWorker
-import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 
 class CoroutineWorkRequest(
@@ -17,7 +17,7 @@ class CoroutineWorkRequest(
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    override val coroutineContext = Dispatchers.IO
+    private val dispatcher = Dispatchers.IO
 
     companion object {
         const val WORK_TAG = "CoroutineWorkRequest"
@@ -32,30 +32,37 @@ class CoroutineWorkRequest(
         }
     }
 
-    override suspend fun doWork(): Result = coroutineScope  {
+    override suspend fun doWork(): Result = coroutineScope {
+        setProgress(1)
         val input = inputData.getString(WORK_INPUT_KEY)
-
         requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
 
-        val inputFromExpectedPreviousJob = inputData.getString(WeirdWorkRequest.WORK_RESULT_KEY)
+        val inputFromExpectedPreviousJob = inputData.getString(CommonWorkRequest.WORK_RESULT_KEY)
 
-        val job = async {
-            calculateDataSynchronously(input, inputFromExpectedPreviousJob)
-        }
-        val result = job.await()
-        return@coroutineScope Result.success(getResultDataFor(result))
+        delay(1000)
+        setProgress(50)
+        val result = calculateData(input, inputFromExpectedPreviousJob)
+        setProgress(99)
+        delay(1000)
+        return@coroutineScope result.toResult()
     }
 
-    private fun calculateDataSynchronously(input: String, optionaParam:String?): String {
-        val resultBuilder = StringBuilder().append("Coroutine worker finished with input = $input")
-        if (!optionaParam.isNullOrEmpty()) {
-            resultBuilder.append(" ")
-            resultBuilder.append("Bonus: we've used previous worker result = $optionaParam")
-        }
-        return resultBuilder.toString()
+    private suspend fun setProgress(
+        progressPercent: Int
+    ){
+        setProgress(workDataOf("Progress" to progressPercent))
     }
 
-    private fun getResultDataFor(result: String): Data {
-        return workDataOf(WORK_RESULT_KEY to result)
+    private suspend fun calculateData(
+        input: String,
+        optionalParam: String?
+    ): String = withContext(dispatcher) {
+        val resultBuilder = StringBuilder().append(input+ "Coroutine" + optionalParam)
+        delay(1000)
+        return@withContext resultBuilder.toString()
+    }
+
+    private fun String.toResult(): Result {
+        return Result.success(workDataOf(WORK_RESULT_KEY to this))
     }
 }

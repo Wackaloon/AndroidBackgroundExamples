@@ -41,11 +41,7 @@ class RxWorkRequest(
     }
 
     private fun calculateDataSynchronously(input: String, optionalParam: String?): String {
-        val resultBuilder = StringBuilder().append("RxWork worker finished finished with input = $input")
-        if (!optionalParam.isNullOrEmpty()) {
-            resultBuilder.append(" ")
-            resultBuilder.append("Bonus: we've used previous worker result = $optionalParam")
-        }
+        val resultBuilder = StringBuilder().append(input+ "Rx" + optionalParam)
         return resultBuilder.toString()
     }
 
