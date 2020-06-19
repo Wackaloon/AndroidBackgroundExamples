@@ -48,8 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         />
-    <com.wackalooon.androidbackgroundworks.WorkCard
-        android:id="@+id/work"
+    <com.wackalooon.androidbackgroundworks.OperationCard
+        android:id="@+id/operation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"

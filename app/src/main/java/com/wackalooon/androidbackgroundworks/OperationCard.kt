@@ -10,7 +10,7 @@ import androidx.work.Operation
 import kotlinx.android.synthetic.main.work_card.view.*
 import java.util.concurrent.Executor
 
-class WorkCard @JvmOverloads constructor(
+class OperationCard @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : CardView(context, attrs, defStyleAttr) {
 
@@ -18,14 +18,14 @@ class WorkCard @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.work_card, this)
     }
 
-    fun setWork(operation: Operation, lifecycleOwner: LifecycleOwner) {
+    fun setOperation(operation: Operation, lifecycleOwner: LifecycleOwner) {
         tag_title.text = operation.toString()
         operation.state.observe(lifecycleOwner, Observer {
             status_value.text = it.toString()
         })
         val listener = Runnable {
             result_value.post {
-                result_value.text = "Work is done"
+                result_value.text = "Operation is complete"
             }
         }
         // will be used to launch callback

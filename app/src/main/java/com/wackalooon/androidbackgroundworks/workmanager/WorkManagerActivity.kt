@@ -3,18 +3,13 @@ package com.wackalooon.androidbackgroundworks.workmanager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.work.*
 import com.wackalooon.androidbackgroundworks.R
 import com.wackalooon.androidbackgroundworks.WorkObserver
 import kotlinx.android.synthetic.main.activity_work_manager.*
-import java.util.*
-import java.util.concurrent.Executor
 
 private const val UNIQUE_WORK_NAME = "UniqueWorkName"
 
@@ -55,7 +50,7 @@ class WorkManagerActivity : AppCompatActivity() {
 
     private fun launchWorkers() {
         // enqueue workers in required order
-        val operation = WorkManager.getInstance(context)
+        val enqueuedOperation = WorkManager.getInstance(context)
             // begin unique allows us to track work status, it's not necessary otherwise
             .beginUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequestCommon)
             // chain requests
@@ -63,7 +58,7 @@ class WorkManagerActivity : AppCompatActivity() {
             .then(workRequestRx)
             .enqueue()
 
-        work.setWork(operation, this)
+        operation.setOperation(enqueuedOperation, this)
     }
 
     private fun cancelWorkers() {
