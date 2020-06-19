@@ -3,7 +3,9 @@ package com.wackalooon.androidbackgroundworks.workmanager
 import android.content.Context
 import androidx.work.*
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
+private var retry = 1
 
 class CommonWorkRequest(
     context: Context,
@@ -23,16 +25,36 @@ class CommonWorkRequest(
                 .setConstraints(networkConstraint)
                 .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
                 .setInitialDelay(1, TimeUnit.SECONDS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.SECONDS)
                 .addTag(WORK_TAG)
                 .build()
         }
     }
 
+
     override fun doWork(): Result {
+        setProgress(1)
+        Thread.sleep(1000)
         val input = inputData.getString(WORK_INPUT_KEY)
         requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
         val result = doHeavyOperation(input)
-        return Result.success(result)
+        setProgress(25)
+        Thread.sleep(1000)
+        return if (retry % 3 != 0) {
+            setProgress(50+retry++)
+            Thread.sleep(1000)
+            Result.retry()
+        } else {
+            setProgress(90)
+            Thread.sleep(1000)
+            Result.success(result)
+        }
+    }
+
+    private fun setProgress(
+        progressPercent: Int
+    ){
+        setProgressAsync(workDataOf("Progress" to progressPercent))
     }
 
     private fun doHeavyOperation(input: String): Data {

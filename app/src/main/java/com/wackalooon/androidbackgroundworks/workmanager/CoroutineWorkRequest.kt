@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 
 class CoroutineWorkRequest(
@@ -42,9 +43,14 @@ class CoroutineWorkRequest(
         delay(1000)
         setProgress(50)
         val result = calculateData(input, inputFromExpectedPreviousJob)
+        delay(1000)
         setProgress(99)
         delay(1000)
-        return@coroutineScope result.toResult()
+        return@coroutineScope if (Random.nextBoolean()) {
+            result.toResult()
+        } else {
+            Result.failure()
+        }
     }
 
     private suspend fun setProgress(

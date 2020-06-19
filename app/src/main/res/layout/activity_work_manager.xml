@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="3"
+    android:background="#f4f4f4"
     >
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:gravity="center"
         android:text="@string/work_manager_example_text"
         />
-
     <Button
         android:id="@+id/work_manager_start_btn"
         android:layout_width="wrap_content"
@@ -29,19 +27,31 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:gravity="center"
-            android:visibility="gone"
         android:text="@string/stop_work_manager_work_text"
+        android:visibility="gone"
         />
-
-
-    <TextView
-        android:id="@+id/work_manager_status"
+    <com.wackalooon.androidbackgroundworks.WorkerCard
+        android:id="@+id/worker_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="left"
-        android:scrollbarStyle="insideInset"
-        android:scrollbars = "vertical"
-        tools:text="Work Manager Status"
+        android:layout_margin="4dp"
+        />
+    <com.wackalooon.androidbackgroundworks.WorkerCard
+        android:id="@+id/worker_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        />
+    <com.wackalooon.androidbackgroundworks.WorkerCard
+        android:id="@+id/worker_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        />
+    <com.wackalooon.androidbackgroundworks.WorkCard
+        android:id="@+id/work"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
         />
 </LinearLayout>

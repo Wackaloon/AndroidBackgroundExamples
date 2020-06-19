@@ -37,6 +37,7 @@ class RxWorkRequest(
 
         val result = calculateDataSynchronously(input, inputFromExpectedPreviousJob)
 
+        Thread.sleep(5000)
         Result.success(getResultDataFor(result))
     }
 

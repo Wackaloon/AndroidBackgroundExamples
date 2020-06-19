@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.work.*
 import com.wackalooon.androidbackgroundworks.R
+import com.wackalooon.androidbackgroundworks.WorkObserver
 import kotlinx.android.synthetic.main.activity_work_manager.*
 import java.util.*
 import java.util.concurrent.Executor
@@ -29,35 +31,29 @@ class WorkManagerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_work_manager)
-        work_manager_status.movementMethod = ScrollingMovementMethod()
 
         work_manager_start_btn.onClick {
+            visibility = View.GONE
             work_manager_stop_btn.visibility = View.VISIBLE
-            work_manager_start_btn.visibility = View.GONE
-            resetStatusLog()
             launchWorkers()
         }
         work_manager_stop_btn.onClick {
-            work_manager_stop_btn.visibility = View.GONE
+            visibility = View.GONE
             work_manager_start_btn.visibility = View.VISIBLE
             cancelWorkers()
         }
         // note, it will observe *existing* job details on each subsequent startup
         // as job is unique and was launched already, hence can have some state from start
-        observeWorkState(UNIQUE_WORK_NAME)
+        WorkObserver.observe(UNIQUE_WORK_NAME, this, this)
 
         // observe progress of a particular work request, doesn't matter when it will be launched
-        observeWorkerProgress(workRequestCoroutines.id)
-    }
+        worker_1.setWorker(workRequestCommon.id, this)
+        worker_2.setWorker(workRequestCoroutines.id, this)
+        worker_3.setWorker(workRequestRx.id, this)
 
-    private fun cancelWorkers() {
-        WorkManager.getInstance(context)
-            .cancelUniqueWork(UNIQUE_WORK_NAME)
     }
 
     private fun launchWorkers() {
-        addToStatusLog("Started")
-
         // enqueue workers in required order
         val operation = WorkManager.getInstance(context)
             // begin unique allows us to track work status, it's not necessary otherwise
@@ -67,61 +63,12 @@ class WorkManagerActivity : AppCompatActivity() {
             .then(workRequestRx)
             .enqueue()
 
-        observeWorkState(operation)
-
-        listenToWorkResult(operation)
+        work.setWork(operation, this)
     }
 
-    private fun observeWorkState(operation: Operation) {
-        val owner = this
-        // observe state of resulted work
-        operation.state.observe(owner, Observer { state ->
-            addToStatusLog("WorkChain.state.observe $state")
-        })
-    }
-
-    private fun listenToWorkResult(operation: Operation) {
-        // kind of callback
-        val listener = Runnable { addToStatusLog("WorkChain.result.addListener: Finished!") }
-        // will be used to launch callback
-        val executor = Executor { runnable -> runnable?.run() }
-        // listen for result
-        operation.result.addListener(listener, executor)
-    }
-
-    private fun observeWorkerProgress(id: UUID) {
-        // observe particular worker state
-        val owner = this
+    private fun cancelWorkers() {
         WorkManager.getInstance(context)
-            .getWorkInfoByIdLiveData(id)
-            .observe(owner, Observer { workInfo: WorkInfo? ->
-                val progress = workInfo?.progress?.getInt("Progress", 0)
-                addToStatusLog("WorkInfo $id progress $progress")
-                addToStatusLog("WorkInfo $id state ${workInfo?.state}")
-            })
-    }
-
-    private fun observeWorkState(uniqueWorkName: String) {
-        val owner = this
-        WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkLiveData(uniqueWorkName)
-            .observe(owner, Observer { workInfoList ->
-                workInfoList.forEach { workInfo ->
-                    // each worker have long default tag and my custom short one, select short one
-                    val tag = workInfo.tags.minBy { it.length }!!
-
-                    addToStatusLog("$tag Work state: ${workInfo.state.name}")
-
-                    if (workInfo.state != WorkInfo.State.SUCCEEDED) {
-                        return@forEach
-                    }
-                    val successOutputData = workInfo.outputData
-                    // in this example all workers have Tag + "OutputKey" as output key
-                    val output = successOutputData.getString(tag + "OutputKey")
-
-                    addToStatusLog("$tag Work output: $output")
-                }
-            })
+                .cancelUniqueWork(UNIQUE_WORK_NAME)
     }
 
     // example of all methods for canceling jobs
@@ -138,15 +85,6 @@ class WorkManagerActivity : AppCompatActivity() {
         WorkManager.getInstance(context)
             .cancelAllWorkByTag(CommonWorkRequest.WORK_TAG)
 
-    }
-
-    private fun addToStatusLog(text: String) = runOnUiThread {
-        val newText = "${work_manager_status.text}\n$text"
-        work_manager_status.text = newText
-    }
-
-    private fun resetStatusLog() {
-        work_manager_status.text = null
     }
 
     private fun Button.onClick(action: Button.() -> Unit) {
