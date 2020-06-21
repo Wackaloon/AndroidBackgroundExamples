@@ -20,8 +20,8 @@ class OperationCard @JvmOverloads constructor(
 
     fun setOperation(operation: Operation, lifecycleOwner: LifecycleOwner) {
         tag_title.text = operation.toString()
-        operation.state.observe(lifecycleOwner, Observer {
-            status_value.text = it.toString()
+        operation.state.observe(lifecycleOwner, Observer { state ->
+            status_value.text = state.toString()
         })
         val listener = Runnable {
             result_value.post {

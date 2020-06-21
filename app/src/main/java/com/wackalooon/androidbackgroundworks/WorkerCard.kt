@@ -32,4 +32,18 @@ class WorkerCard @JvmOverloads constructor(
                     run_attempt_value.text = workInfo?.runAttemptCount.toString()
                 })
     }
+
+    fun setWorker(tag: String, lifecycleOwner: LifecycleOwner) {
+        WorkManager.getInstance(context)
+                .getWorkInfosByTagLiveData(tag)
+                .observe(lifecycleOwner, Observer { workInfoList: List<WorkInfo> ->
+                    tag_title.text = tag
+                    workInfoList.forEach { workInfo ->
+                        progress_value.text = "Has ${workInfoList.size} workers"
+                        status_value.text = workInfo.state.toString()
+                        result_value.text = workInfo.outputData.getString(tag + "OutputKey")
+                        run_attempt_value.text = workInfo.runAttemptCount.toString()
+                    }
+                })
+    }
 }

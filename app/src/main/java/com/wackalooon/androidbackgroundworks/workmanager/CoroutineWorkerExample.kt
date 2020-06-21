@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 
-class CoroutineWorkRequest(
+class CoroutineWorkerExample(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
@@ -26,10 +26,10 @@ class CoroutineWorkRequest(
         private const val WORK_INPUT_KEY = "${WORK_TAG}InputKey"
 
         fun createWorkRequest(inputData: String): OneTimeWorkRequest {
-            return OneTimeWorkRequestBuilder<CoroutineWorkRequest>()
-                .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
-                .addTag(WORK_TAG)
-                .build()
+            return OneTimeWorkRequestBuilder<CoroutineWorkerExample>()
+                    .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
+                    .addTag(WORK_TAG)
+                    .build()
         }
     }
 
@@ -38,7 +38,7 @@ class CoroutineWorkRequest(
         val input = inputData.getString(WORK_INPUT_KEY)
         requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
 
-        val inputFromExpectedPreviousJob = inputData.getString(CommonWorkRequest.WORK_RESULT_KEY)
+        val inputFromExpectedPreviousJob = inputData.getString(CommonWorkerExample.WORK_RESULT_KEY)
 
         delay(1000)
         setProgress(50)
@@ -55,7 +55,7 @@ class CoroutineWorkRequest(
 
     private suspend fun setProgress(
         progressPercent: Int
-    ){
+    ) {
         setProgress(workDataOf("Progress" to progressPercent))
     }
 
@@ -63,7 +63,7 @@ class CoroutineWorkRequest(
         input: String,
         optionalParam: String?
     ): String = withContext(dispatcher) {
-        val resultBuilder = StringBuilder().append(input+ "Coroutine" + optionalParam)
+        val resultBuilder = StringBuilder().append(input + "Coroutine" + optionalParam)
         delay(1000)
         return@withContext resultBuilder.toString()
     }

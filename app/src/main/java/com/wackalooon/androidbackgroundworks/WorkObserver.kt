@@ -24,7 +24,7 @@ object WorkObserver {
                         // in this example all workers have Tag + "OutputKey" as output key
                         val output = successOutputData.getString(tag + "OutputKey")
 
-                        Toast.makeText(context, "Worker: $tag is done with $output", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Worker: $tag is done with $output", Toast.LENGTH_LONG).show()
                     }
                 })
     }

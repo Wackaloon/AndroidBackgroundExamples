@@ -6,21 +6,23 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.*
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.wackalooon.androidbackgroundworks.R
 import com.wackalooon.androidbackgroundworks.WorkObserver
 import kotlinx.android.synthetic.main.activity_work_manager.*
 
-private const val UNIQUE_WORK_NAME = "UniqueWorkName"
+const val UNIQUE_WORK_NAME = "UniqueWorkName"
 
 class WorkManagerActivity : AppCompatActivity() {
 
     private val context = this
 
     // create work requests
-    private val workRequestCommon = CommonWorkRequest.createWorkRequest(inputData = "One")
-    private val workRequestCoroutines = CoroutineWorkRequest.createWorkRequest(inputData = "Two")
-    private val workRequestRx = RxWorkRequest.createWorkRequest(inputData = "Three")
+    private val workRequestCommon = CommonWorkerExample.createWorkRequest(inputData = "One")
+    private val workRequestCoroutines = CoroutineWorkerExample.createWorkRequest(inputData = "Two")
+    private val workRequestRx = RxWorkerExample.createWorkRequest(inputData = "Three")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,19 +46,20 @@ class WorkManagerActivity : AppCompatActivity() {
         // observe progress of a particular work request, doesn't matter when it will be launched
         worker_1.setWorker(workRequestCommon.id, this)
         worker_2.setWorker(workRequestCoroutines.id, this)
-        worker_3.setWorker(workRequestRx.id, this)
+        worker_3.setWorker(RxWorkerExample.WORK_TAG, this)
 
     }
 
     private fun launchWorkers() {
         // enqueue workers in required order
         val enqueuedOperation = WorkManager.getInstance(context)
-            // begin unique allows us to track work status, it's not necessary otherwise
-            .beginUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequestCommon)
-            // chain requests
-            .then(workRequestCoroutines)
-            .then(workRequestRx)
-            .enqueue()
+                // begin unique allows us to track work status, it's not necessary otherwise
+                .beginUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequestCommon)
+                // chain requests
+                .then(workRequestCoroutines)
+                .then(workRequestRx)
+
+                .enqueue()
 
         operation.setOperation(enqueuedOperation, this)
     }
@@ -69,16 +72,16 @@ class WorkManagerActivity : AppCompatActivity() {
     // example of all methods for canceling jobs
     private fun cancelWork(workRequest: OneTimeWorkRequest) {
         WorkManager.getInstance(context)
-            .cancelAllWork()
+                .cancelAllWork()
 
         WorkManager.getInstance(context)
-            .cancelUniqueWork("Unique work name")
+                .cancelUniqueWork("Unique work name")
 
         WorkManager.getInstance(context)
-            .cancelWorkById(workRequest.id)
+                .cancelWorkById(workRequest.id)
 
         WorkManager.getInstance(context)
-            .cancelAllWorkByTag(CommonWorkRequest.WORK_TAG)
+                .cancelAllWorkByTag(CommonWorkerExample.WORK_TAG)
 
     }
 
