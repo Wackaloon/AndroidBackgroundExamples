@@ -24,6 +24,9 @@ class WorkManagerActivity : AppCompatActivity() {
     private val workRequestCoroutines = CoroutineWorkerExample.createWorkRequest(inputData = "Two")
     private val workRequestRx = RxWorkerExample.createWorkRequest(inputData = "Three")
 
+    private val intergerWorkerExample = IntergerWorkerExample.createWorkRequest(1)
+    private val intergerWorkerExample2 = IntergerWorkerExample.createWorkRequest(5)
+    private val intergerWorkerExample3 = IntergerWorkerExample.createWorkRequest(7)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -53,35 +56,42 @@ class WorkManagerActivity : AppCompatActivity() {
     private fun launchWorkers() {
         // enqueue workers in required order
         val enqueuedOperation = WorkManager.getInstance(context)
-                // begin unique allows us to track work status, it's not necessary otherwise
-                .beginUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequestCommon)
-                // chain requests
-                .then(workRequestCoroutines)
-                .then(workRequestRx)
+            // begin unique allows us to track work status, it's not necessary otherwise
+            .beginUniqueWork(
+                UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, listOf(
+                    intergerWorkerExample,
+                    intergerWorkerExample2,
+                    intergerWorkerExample3
+                )
+            )
+            // chain requests
+            .then(workRequestCommon)
+            .then(workRequestCoroutines)
+            .then(workRequestRx)
 
-                .enqueue()
+            .enqueue()
 
         operation.setOperation(enqueuedOperation, this)
     }
 
     private fun cancelWorkers() {
         WorkManager.getInstance(context)
-                .cancelUniqueWork(UNIQUE_WORK_NAME)
+            .cancelUniqueWork(UNIQUE_WORK_NAME)
     }
 
     // example of all methods for canceling jobs
     private fun cancelWork(workRequest: OneTimeWorkRequest) {
         WorkManager.getInstance(context)
-                .cancelAllWork()
+            .cancelAllWork()
 
         WorkManager.getInstance(context)
-                .cancelUniqueWork("Unique work name")
+            .cancelUniqueWork("Unique work name")
 
         WorkManager.getInstance(context)
-                .cancelWorkById(workRequest.id)
+            .cancelWorkById(workRequest.id)
 
         WorkManager.getInstance(context)
-                .cancelAllWorkByTag(CommonWorkerExample.WORK_TAG)
+            .cancelAllWorkByTag(CommonWorkerExample.WORK_TAG)
 
     }
 

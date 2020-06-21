@@ -30,7 +30,7 @@ class CommonWorkerTest {
         val worker = TestWorkerBuilder<CommonWorkerExample>(
             context = context,
             executor = executor,
-            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to "Test")
+            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to arrayOf("Test"))
         ).build()
         // when
         val result1 = worker.doWork()
@@ -47,7 +47,7 @@ class CommonWorkerTest {
         val worker = TestWorkerBuilder<CommonWorkerExample>(
             context = context,
             executor = executor,
-            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to "Test")
+            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to arrayOf("Test"))
         ).build()
         // when
         worker.doWork()
@@ -55,7 +55,7 @@ class CommonWorkerTest {
         val result = worker.doWork()
         // then
         assertEquals(
-            Result.success(workDataOf(CommonWorkerExample.WORK_RESULT_KEY to "TestCommon")),
+            Result.success(workDataOf(CommonWorkerExample.WORK_RESULT_KEY to "[Test]Commonnull")),
             result
         )
     }

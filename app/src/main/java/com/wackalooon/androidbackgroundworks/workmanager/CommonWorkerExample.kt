@@ -22,16 +22,17 @@ class CommonWorkerExample(
 
         fun createWorkRequest(inputData: String): OneTimeWorkRequest {
             val networkConstraint = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
             return OneTimeWorkRequestBuilder<CommonWorkerExample>()
-                    .setConstraints(networkConstraint)
-                    .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
-                    .setInitialDelay(1, TimeUnit.SECONDS)
-                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.SECONDS)
-                    .addTag(WORK_TAG)
-                    .build()
+                .setConstraints(networkConstraint)
+                .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
+                .setInputMerger(ArrayCreatingInputMerger::class.java)
+                .setInitialDelay(1, TimeUnit.SECONDS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.SECONDS)
+                .addTag(WORK_TAG)
+                .build()
         }
     }
 
@@ -39,9 +40,10 @@ class CommonWorkerExample(
     override fun doWork(): Result {
         setProgress(1)
         Thread.sleep(1000)
-        val input = inputData.getString(WORK_INPUT_KEY)
+        val input = inputData.getStringArray(WORK_INPUT_KEY)
+        val inputPrevious = inputData.getIntArray(IntergerWorkerExample.WORK_RESULT_KEY)
         requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
-        val result = doHeavyOperation(input)
+        val result = doHeavyOperation(input, inputPrevious)
         setProgress(25)
         Thread.sleep(1000)
         return if (retry % 3 != 0) {
@@ -61,7 +63,10 @@ class CommonWorkerExample(
         setProgressAsync(workDataOf("Progress" to progressPercent))
     }
 
-    private fun doHeavyOperation(input: String): Data {
-        return workDataOf(WORK_RESULT_KEY to input + "Common")
+    private fun doHeavyOperation(
+        input: Array<String>?,
+        inputPrevious: IntArray?
+    ): Data {
+        return workDataOf(WORK_RESULT_KEY to input?.toList().toString() + "Common" + inputPrevious?.toList().toString())
     }
 }
