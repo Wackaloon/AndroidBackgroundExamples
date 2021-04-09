@@ -10,7 +10,11 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.wackalooon.androidbackgroundworks.R
-import com.wackalooon.androidbackgroundworks.WorkObserver
+import com.wackalooon.androidbackgroundworks.workmanager.utils.WorkObserver
+import com.wackalooon.androidbackgroundworks.workmanager.workers.CommonWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.CoroutineWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.IntegerWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.RxWorkerExample
 import kotlinx.android.synthetic.main.activity_work_manager.*
 
 const val UNIQUE_WORK_NAME = "UniqueWorkName"

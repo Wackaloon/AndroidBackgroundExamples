@@ -1,4 +1,4 @@
-package com.wackalooon.androidbackgroundworks
+package com.wackalooon.androidbackgroundworks.workmanager.utils
 
 import android.content.Context
 import android.widget.Toast

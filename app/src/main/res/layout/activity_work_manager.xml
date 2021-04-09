@@ -30,25 +30,25 @@
         android:text="@string/stop_work_manager_work_text"
         android:visibility="gone"
         />
-    <com.wackalooon.androidbackgroundworks.WorkerCard
+    <com.wackalooon.androidbackgroundworks.workmanager.views.WorkerCard
         android:id="@+id/worker_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         />
-    <com.wackalooon.androidbackgroundworks.WorkerCard
+    <com.wackalooon.androidbackgroundworks.workmanager.views.WorkerCard
         android:id="@+id/worker_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         />
-    <com.wackalooon.androidbackgroundworks.WorkerCard
+    <com.wackalooon.androidbackgroundworks.workmanager.views.WorkerCard
         android:id="@+id/worker_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         />
-    <com.wackalooon.androidbackgroundworks.OperationCard
+    <com.wackalooon.androidbackgroundworks.workmanager.views.OperationCard
         android:id="@+id/operation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

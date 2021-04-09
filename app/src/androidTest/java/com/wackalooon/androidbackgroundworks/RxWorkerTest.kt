@@ -5,8 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
-import com.wackalooon.androidbackgroundworks.workmanager.CoroutineWorkerExample
-import com.wackalooon.androidbackgroundworks.workmanager.RxWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.CoroutineWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.RxWorkerExample
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.Executor

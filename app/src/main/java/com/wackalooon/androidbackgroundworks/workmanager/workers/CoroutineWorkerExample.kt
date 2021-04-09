@@ -1,4 +1,4 @@
-package com.wackalooon.androidbackgroundworks.workmanager
+package com.wackalooon.androidbackgroundworks.workmanager.workers
 
 import android.content.Context
 import androidx.work.CoroutineWorker

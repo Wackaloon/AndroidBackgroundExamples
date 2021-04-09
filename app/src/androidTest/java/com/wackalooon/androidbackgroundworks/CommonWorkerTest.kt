@@ -5,8 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestWorkerBuilder
 import androidx.work.workDataOf
-import com.wackalooon.androidbackgroundworks.workmanager.CommonWorkerExample
-import com.wackalooon.androidbackgroundworks.workmanager.retry
+import com.wackalooon.androidbackgroundworks.workmanager.workers.CommonWorkerExample
+import com.wackalooon.androidbackgroundworks.workmanager.workers.retry
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
