@@ -23,7 +23,7 @@ class WorkerCard @JvmOverloads constructor(
         WorkManager.getInstance(context)
                 .getWorkInfoByIdLiveData(id)
                 .observe(lifecycleOwner, Observer { workInfo: WorkInfo? ->
-                    val tag = workInfo?.tags?.minBy { it.length }
+                    val tag = workInfo?.tags?.minByOrNull { it.length }
                     tag_title.text = tag
                     val progress = workInfo?.progress?.getInt("Progress", 0)
                     progress_value.text = "$progress%"

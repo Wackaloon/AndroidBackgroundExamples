@@ -15,7 +15,7 @@ object WorkObserver {
                 .observe(lifecycleOwner, Observer { workInfoList ->
                     workInfoList.forEach { workInfo ->
                         // each worker have long default tag and my custom short one, select short one
-                        val tag = workInfo.tags.minBy { it.length }!!
+                        val tag = workInfo.tags.minByOrNull { it.length }!!
 
                         if (workInfo.state != WorkInfo.State.SUCCEEDED) {
                             return@forEach

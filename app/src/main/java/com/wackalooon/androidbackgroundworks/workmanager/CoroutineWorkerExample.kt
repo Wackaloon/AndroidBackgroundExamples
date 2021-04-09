@@ -42,10 +42,13 @@ class CoroutineWorkerExample(
 
         delay(1000)
         setProgress(50)
-        val result = calculateData(input, inputFromExpectedPreviousJob)
+
+        val result: String = calculateData(input, inputFromExpectedPreviousJob)
+
         delay(1000)
         setProgress(99)
         delay(1000)
+
         return@coroutineScope if (Random.nextBoolean()) {
             result.toResult()
         } else {
