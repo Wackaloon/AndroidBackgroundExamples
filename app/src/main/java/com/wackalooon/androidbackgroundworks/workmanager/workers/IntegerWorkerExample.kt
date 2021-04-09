@@ -17,7 +17,7 @@ class IntegerWorkerExample(
 ) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
-        const val WORK_TAG = "CoroutineWorkRequest"
+        const val WORK_TAG = "IntegerWorkerExample"
         const val WORK_RESULT_KEY = "${WORK_TAG}OutputKey"
         private const val WORK_INPUT_KEY = "${WORK_TAG}InputKey"
 
@@ -30,7 +30,8 @@ class IntegerWorkerExample(
     }
 
     override suspend fun doWork(): Result = coroutineScope {
-       return@coroutineScope Result.success(workDataOf(WORK_RESULT_KEY to inputData.getInt(WORK_INPUT_KEY, 0)))
+        val inputArgument = inputData.getInt(WORK_INPUT_KEY, 0)
+       return@coroutineScope Result.success(workDataOf(WORK_RESULT_KEY to inputArgument))
     }
 
 }

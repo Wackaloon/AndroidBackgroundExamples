@@ -3,11 +3,11 @@ package com.wackalooon.androidbackgroundworks.workmanager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
 import androidx.work.WorkManager
 import com.wackalooon.androidbackgroundworks.R
 import com.wackalooon.androidbackgroundworks.workmanager.utils.WorkObserver
@@ -31,21 +31,11 @@ class WorkManagerActivity : AppCompatActivity() {
     private val intergerWorkerExample = IntegerWorkerExample.createWorkRequest(1)
     private val intergerWorkerExample2 = IntegerWorkerExample.createWorkRequest(5)
     private val intergerWorkerExample3 = IntegerWorkerExample.createWorkRequest(7)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_work_manager)
-
-        work_manager_start_btn.onClick {
-            visibility = View.GONE
-            work_manager_stop_btn.visibility = View.VISIBLE
-            launchWorkers()
-        }
-        work_manager_stop_btn.onClick {
-            visibility = View.GONE
-            work_manager_start_btn.visibility = View.VISIBLE
-            cancelWorkers()
-        }
+        setupStartStopButtons()
         // note, it will observe *existing* job details on each subsequent startup
         // as job is unique and was launched already, hence can have some state from start
         WorkObserver.observe(UNIQUE_WORK_NAME, this, this)
@@ -54,28 +44,40 @@ class WorkManagerActivity : AppCompatActivity() {
         worker_1.setWorker(workRequestCommon.id, this)
         worker_2.setWorker(workRequestCoroutines.id, this)
         worker_3.setWorker(RxWorkerExample.WORK_TAG, this)
-
     }
 
-    private fun launchWorkers() {
+    private fun setupStartStopButtons() {
+        work_manager_start_btn.setOnClickListener {
+            work_manager_start_btn.isVisible = false
+            work_manager_stop_btn.isVisible = true
+            val enqueuedOperation = launchWorkers()
+            operation_card.setOperation(enqueuedOperation, this)
+        }
+        work_manager_stop_btn.setOnClickListener {
+            work_manager_start_btn.isVisible = true
+            work_manager_stop_btn.isVisible = false
+            cancelWorkers()
+        }
+    }
+
+    private fun launchWorkers(): Operation {
+        val listOfWorkers = listOf(
+            intergerWorkerExample,
+            intergerWorkerExample2,
+            intergerWorkerExample3)
         // enqueue workers in required order
-        val enqueuedOperation = WorkManager.getInstance(context)
+        return WorkManager.getInstance(context)
             // begin unique allows us to track work status, it's not necessary otherwise
             .beginUniqueWork(
-                UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, listOf(
-                    intergerWorkerExample,
-                    intergerWorkerExample2,
-                    intergerWorkerExample3
-                )
-            )
+                UNIQUE_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                listOfWorkers)
             // chain requests
             .then(workRequestCommon)
             .then(workRequestCoroutines)
             .then(workRequestRx)
 
             .enqueue()
-
-        operation.setOperation(enqueuedOperation, this)
     }
 
     private fun cancelWorkers() {
@@ -97,12 +99,6 @@ class WorkManagerActivity : AppCompatActivity() {
         WorkManager.getInstance(context)
             .cancelAllWorkByTag(CommonWorkerExample.WORK_TAG)
 
-    }
-
-    private fun Button.onClick(action: Button.() -> Unit) {
-        this.setOnClickListener {
-            action()
-        }
     }
 
     companion object {

@@ -10,6 +10,7 @@ var retry = 1
 
 /**
  * Gathers all incoming arguments into array and passes them to the result along with worker name.
+ * Retries 3 times each time.
  */
 class CommonWorkerExample(
     context: Context,
