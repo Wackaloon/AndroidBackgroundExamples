@@ -6,14 +6,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlin.random.Random
 
 
-class IntergerWorkerExample(
+class IntegerWorkerExample(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
@@ -24,7 +20,7 @@ class IntergerWorkerExample(
         private const val WORK_INPUT_KEY = "${WORK_TAG}InputKey"
 
         fun createWorkRequest(inputData: Int): OneTimeWorkRequest {
-            return OneTimeWorkRequestBuilder<IntergerWorkerExample>()
+            return OneTimeWorkRequestBuilder<IntegerWorkerExample>()
                     .setInputData(workDataOf(WORK_INPUT_KEY to inputData))
                     .addTag(WORK_TAG)
                     .build()

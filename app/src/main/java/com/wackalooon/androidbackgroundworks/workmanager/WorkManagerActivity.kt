@@ -24,9 +24,9 @@ class WorkManagerActivity : AppCompatActivity() {
     private val workRequestCoroutines = CoroutineWorkerExample.createWorkRequest(inputData = "Two")
     private val workRequestRx = RxWorkerExample.createWorkRequest(inputData = "Three")
 
-    private val intergerWorkerExample = IntergerWorkerExample.createWorkRequest(1)
-    private val intergerWorkerExample2 = IntergerWorkerExample.createWorkRequest(5)
-    private val intergerWorkerExample3 = IntergerWorkerExample.createWorkRequest(7)
+    private val intergerWorkerExample = IntegerWorkerExample.createWorkRequest(1)
+    private val intergerWorkerExample2 = IntegerWorkerExample.createWorkRequest(5)
+    private val intergerWorkerExample3 = IntegerWorkerExample.createWorkRequest(7)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

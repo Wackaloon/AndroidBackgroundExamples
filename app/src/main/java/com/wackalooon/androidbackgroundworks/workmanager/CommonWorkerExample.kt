@@ -41,7 +41,7 @@ class CommonWorkerExample(
         setProgress(1)
         Thread.sleep(1000)
         val input = inputData.getStringArray(WORK_INPUT_KEY)
-        val inputPrevious = inputData.getIntArray(IntergerWorkerExample.WORK_RESULT_KEY)
+        val inputPrevious = inputData.getIntArray(IntegerWorkerExample.WORK_RESULT_KEY)
         requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
         val result = doHeavyOperation(input, inputPrevious)
         setProgress(25)
