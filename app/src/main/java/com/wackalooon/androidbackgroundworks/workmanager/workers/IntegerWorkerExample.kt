@@ -8,7 +8,9 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import kotlinx.coroutines.coroutineScope
 
-
+/**
+ * Just passes integer from argument to the result.
+ */
 class IntegerWorkerExample(
     appContext: Context,
     workerParams: WorkerParameters

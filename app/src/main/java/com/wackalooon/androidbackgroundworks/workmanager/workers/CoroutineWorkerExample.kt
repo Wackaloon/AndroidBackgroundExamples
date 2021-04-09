@@ -12,7 +12,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-
+/**
+ * Randomly fails, when succeeds passes worker name plus argument to the result.
+ */
 class CoroutineWorkerExample(
     appContext: Context,
     workerParams: WorkerParameters

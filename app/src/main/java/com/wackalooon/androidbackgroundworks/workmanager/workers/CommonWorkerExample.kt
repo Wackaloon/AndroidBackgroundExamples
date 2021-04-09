@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit
 @VisibleForTesting
 var retry = 1
 
+/**
+ * Gathers all incoming arguments into array and passes them to the result along with worker name.
+ */
 class CommonWorkerExample(
     context: Context,
     workerParams: WorkerParameters
@@ -38,14 +41,7 @@ class CommonWorkerExample(
 
 
     override fun doWork(): Result {
-        setProgress(1)
-        Thread.sleep(1000)
-        val input = inputData.getStringArray(WORK_INPUT_KEY)
-        val inputPrevious = inputData.getIntArray(IntegerWorkerExample.WORK_RESULT_KEY)
-        requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
-        val result = doHeavyOperation(input, inputPrevious)
-        setProgress(25)
-        Thread.sleep(1000)
+        val result = imitateHardWork()
         return if (retry % 3 != 0) {
             setProgress(50 + retry++)
             Thread.sleep(1000)
@@ -55,6 +51,17 @@ class CommonWorkerExample(
             Thread.sleep(1000)
             Result.success(result)
         }
+    }
+
+    private fun imitateHardWork(): Data {
+        setProgress(1)
+        Thread.sleep(1000)
+        val workerInput = inputData.getStringArray(WORK_INPUT_KEY)
+        val previousWorkersResult = inputData.getIntArray(IntegerWorkerExample.WORK_RESULT_KEY)
+        requireNotNull(workerInput) { "Launch worker only with {@link #createWorkRequest(String)}" }
+        setProgress(25)
+        Thread.sleep(1000)
+        return doHeavyOperation(workerInput, previousWorkersResult)
     }
 
     private fun setProgress(
@@ -67,6 +74,9 @@ class CommonWorkerExample(
         input: Array<String>?,
         inputPrevious: IntArray?
     ): Data {
-        return workDataOf(WORK_RESULT_KEY to input?.toList().toString() + "Common" + inputPrevious?.toList().toString())
+        val previousWorkersResult = inputPrevious?.toList().toString()
+        val workerInput = input?.toList().toString()
+        val output = workerInput + "Common" + previousWorkersResult
+        return workDataOf(WORK_RESULT_KEY to output)
     }
 }
