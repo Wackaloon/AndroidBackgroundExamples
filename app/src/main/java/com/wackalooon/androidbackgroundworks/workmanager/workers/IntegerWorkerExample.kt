@@ -33,5 +33,4 @@ class IntegerWorkerExample(
         val inputArgument = inputData.getInt(WORK_INPUT_KEY, 0)
        return@coroutineScope Result.success(workDataOf(WORK_RESULT_KEY to inputArgument))
     }
-
 }

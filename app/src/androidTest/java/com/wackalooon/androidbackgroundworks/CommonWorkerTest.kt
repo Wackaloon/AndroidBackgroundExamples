@@ -13,6 +13,20 @@ import org.junit.Test
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
+private val COMMON_WORKER_EXPECTED_RESULT = Result.success(
+    workDataOf(
+        CommonWorkerExample.WORK_RESULT_KEY to "[Test]Commonnull"
+    )
+)
+
+private val COMMON_WORKER_INPUT_DATA = workDataOf(
+    CommonWorkerExample.WORK_INPUT_KEY to arrayOf("Test")
+)
+
+private val COMMON_WORKER_INVALID_INPUT_DATA = workDataOf(
+    "random_string" to arrayOf("Test")
+)
+
 class CommonWorkerTest {
     private lateinit var context: Context
     private lateinit var executor: Executor
@@ -30,7 +44,7 @@ class CommonWorkerTest {
         val worker = TestWorkerBuilder<CommonWorkerExample>(
             context = context,
             executor = executor,
-            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to arrayOf("Test"))
+            inputData = COMMON_WORKER_INPUT_DATA
         ).build()
         // when
         val result1 = worker.doWork()
@@ -47,17 +61,14 @@ class CommonWorkerTest {
         val worker = TestWorkerBuilder<CommonWorkerExample>(
             context = context,
             executor = executor,
-            inputData = workDataOf(CommonWorkerExample.WORK_INPUT_KEY to arrayOf("Test"))
+            inputData = COMMON_WORKER_INPUT_DATA
         ).build()
         // when
         worker.doWork()
         worker.doWork()
         val result = worker.doWork()
         // then
-        assertEquals(
-            Result.success(workDataOf(CommonWorkerExample.WORK_RESULT_KEY to "[Test]Commonnull")),
-            result
-        )
+        assertEquals(COMMON_WORKER_EXPECTED_RESULT, result)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -67,7 +78,7 @@ class CommonWorkerTest {
         val worker = TestWorkerBuilder<CommonWorkerExample>(
             context = context,
             executor = executor,
-            inputData = workDataOf("random_key" to "Test")
+            inputData = COMMON_WORKER_INVALID_INPUT_DATA
         ).build()
         // when
         worker.doWork()
