@@ -1,4 +1,4 @@
-package com.wackalooon.androidbackgroundworks
+package com.wackalooon.androidbackgroundworks.workmanager.workers
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
