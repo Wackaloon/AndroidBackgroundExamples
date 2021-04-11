@@ -5,8 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
-import com.wackalooon.androidbackgroundworks.workmanager.workers.CoroutineWorkerExample
-import com.wackalooon.androidbackgroundworks.workmanager.workers.RxWorkerExample
 import org.junit.Before
 import org.junit.Test
 
@@ -17,7 +15,7 @@ private val RX_WORKER_EXPECTED_RESULT = Result.success(
 )
 
 private val RX_WORKER_INPUT_DATA = workDataOf(
-    RxWorkerExample.WORK_INPUT_KEY to arrayOf("Test")
+    RxWorkerExample.WORK_INPUT_KEY to "Test"
 )
 
 private val RX_WORKER_EXPECTED_COMBINED_RESULT = Result.success(
