@@ -18,6 +18,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".workmanager.WorkManagerActivity"/>
+
+        <receiver android:name=".gps.LocationBroadcastReceiver" />
     </application>
 
 </manifest>
