@@ -1,12 +1,13 @@
 package com.wackalooon.androidbackgroundworks.gps
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES
 import android.os.Looper
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import com.google.android.gms.location.LocationCallback
@@ -19,33 +20,29 @@ import java.util.*
 /**
  * The desired interval for location updates. Inexact. Updates may be more or less frequent.
  */
-private const val UPDATE_INTERVAL_IN_MILLISECONDS = 10_000L
+private const val UPDATE_INTERVAL_IN_MILLISECONDS = 60_000L
 
 /**
  * The fastest rate for active location updates. Updates will never be more frequent
  * than this value.
  */
-private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 2_000L
+private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10_000L
 
 class PeriodicBackgroundLocationProvider constructor(private val context: Context) {
 
-    private var locationCallback: LocationCallback? = null
-
-    fun startLocationUpdates(callback: (Result<Location>) -> Unit) {
+    /**
+     * @throws IllegalStateException when has no permission for background location
+     */
+    fun startLocationUpdates() {
         if (!hasLocationPermission()) {
-            callback.invoke(Result.failure(IllegalStateException("Missing location permission")))
-            return
+            throw IllegalStateException("Missing location permission")
         }
-        locationCallback = createLocationCallback(callback)
         val locationRequest = createLocationRequest()
-        subscribeToLocationUpdates(locationCallback!!, locationRequest)
+        subscribeToLocationUpdates(locationRequest)
     }
 
     fun stopLocationUpdates() {
-        if (locationCallback == null) {
-            return
-        }
-        unsubscribeToLocationUpdates(locationCallback!!)
+        unsubscribeToLocationUpdates()
     }
 
     private fun createLocationRequest(): LocationRequest {
@@ -55,35 +52,37 @@ class PeriodicBackgroundLocationProvider constructor(private val context: Contex
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
     }
 
-    private fun createLocationCallback(callback: (Result<Location>) -> Unit): LocationCallback {
-        return object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                val location = locationResult?.lastLocation
-                if (location != null) {
-                    callback.invoke(Result.success(location))
-                } else {
-                    callback.invoke(Result.failure(NoSuchElementException("No location found")))
-                }
-            }
-        }
-    }
-
     @SuppressLint("MissingPermission") // permission is checked
-    private fun subscribeToLocationUpdates(callback: LocationCallback, request: LocationRequest) {
+    private fun subscribeToLocationUpdates(request: LocationRequest) {
         LocationServices
             .getFusedLocationProviderClient(context)
-            .requestLocationUpdates(request, PendingIntent.getBroadcast())
+            .requestLocationUpdates(request, getPendingIntent())
     }
 
-    private fun unsubscribeToLocationUpdates(callback: LocationCallback) {
+    private fun getPendingIntent(): PendingIntent {
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            LocationBroadcastReceiver.createIntent(context),
+            0
+        )
+    }
+
+    private fun unsubscribeToLocationUpdates() {
         LocationServices
             .getFusedLocationProviderClient(context)
-            .removeLocationUpdates(callback)
+            .removeLocationUpdates(getPendingIntent())
     }
 
     private fun hasLocationPermission(): Boolean {
-        return checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
-                || checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
+        val backgroundLocation = if (SDK_INT >= VERSION_CODES.Q) {
+            checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED
+        } else {
+            true
+        }
+        return (checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
+                || checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED)
+                && backgroundLocation
 
     }
 }

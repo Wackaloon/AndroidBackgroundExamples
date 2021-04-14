@@ -9,6 +9,12 @@ import android.content.Intent
  */
 class LocationBroadcastReceiver : BroadcastReceiver() {
 
+    companion object {
+        fun createIntent(context: Context): Intent {
+            return Intent(context, LocationBroadcastReceiver::class.java)
+        }
+    }
+
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) {
             return
