@@ -2,6 +2,7 @@ package com.wackalooon.androidbackgroundworks
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.wackalooon.androidbackgroundworks.alarms.AlarmActivity
 import com.wackalooon.androidbackgroundworks.workmanager.WorkManagerActivity
 
 class MainActivity : AppCompatActivity() {
@@ -13,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        startActivity(WorkManagerActivity.createIntent(this))
+//        startActivity(WorkManagerActivity.createIntent(this))
+        startActivity(AlarmActivity.createIntent(this))
     }
 }
