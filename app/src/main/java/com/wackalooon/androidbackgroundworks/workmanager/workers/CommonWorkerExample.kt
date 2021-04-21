@@ -45,29 +45,26 @@ class CommonWorkerExample(
         val result = imitateHardWork()
         return if (retry % 3 != 0) {
             setProgress(50 + retry++)
-            Thread.sleep(1000)
             Result.retry()
         } else {
             setProgress(90)
-            Thread.sleep(1000)
             Result.success(result)
         }
     }
 
     private fun imitateHardWork(): Data {
         setProgress(1)
-        Thread.sleep(1000)
         val workerInput = inputData.getStringArray(WORK_INPUT_KEY)
         val previousWorkersResult = inputData.getIntArray(IntegerWorkerExample.WORK_RESULT_KEY)
-        requireNotNull(workerInput) { "Launch worker only with {@link #createWorkRequest(String)}" }
+        Thread.sleep(2000)
         setProgress(25)
-        Thread.sleep(1000)
         return doHeavyOperation(workerInput, previousWorkersResult)
     }
 
     private fun setProgress(
         progressPercent: Int
     ) {
+        Thread.sleep(1000)
         setProgressAsync(workDataOf("Progress" to progressPercent))
     }
 

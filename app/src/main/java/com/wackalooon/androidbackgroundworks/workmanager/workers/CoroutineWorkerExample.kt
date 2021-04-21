@@ -37,20 +37,11 @@ class CoroutineWorkerExample(
 
     override suspend fun doWork(): Result = coroutineScope {
         setProgress(1)
-        val input = inputData.getString(WORK_INPUT_KEY)
-        requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
-
+        val input = inputData.getString(WORK_INPUT_KEY)!!
         val inputFromExpectedPreviousJob = inputData.getString(CommonWorkerExample.WORK_RESULT_KEY)
-
-        delay(1000)
         setProgress(50)
-
         val result: String = calculateData(input, inputFromExpectedPreviousJob)
-
-        delay(1000)
         setProgress(99)
-        delay(1000)
-
         return@coroutineScope if (Random.nextBoolean()) {
             result.toResult()
         } else {
@@ -61,6 +52,7 @@ class CoroutineWorkerExample(
     private suspend fun setProgress(
         progressPercent: Int
     ) {
+        delay(1000)
         setProgress(workDataOf("Progress" to progressPercent))
     }
 
@@ -69,7 +61,7 @@ class CoroutineWorkerExample(
         optionalParam: String?
     ): String = withContext(dispatcher) {
         val resultBuilder = StringBuilder().append(input + "Coroutine" + optionalParam)
-        delay(1000)
+        delay(3000)
         return@withContext resultBuilder.toString()
     }
 

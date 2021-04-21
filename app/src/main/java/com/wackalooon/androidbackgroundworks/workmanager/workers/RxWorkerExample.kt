@@ -32,15 +32,9 @@ class RxWorkerExample(
     }
 
     override fun createWork(): Single<Result> = Single.fromCallable {
-        val input = inputData.getString(WORK_INPUT_KEY)
-
+        val input = inputData.getString(WORK_INPUT_KEY)!!
         val inputFromExpectedPreviousJob = inputData.getString(CoroutineWorkerExample.WORK_RESULT_KEY)
-
-        requireNotNull(input) { "Launch worker only with {@link #createWorkRequest(String)}" }
-
         val result = calculateDataSynchronously(input, inputFromExpectedPreviousJob)
-
-        Thread.sleep(5000)
         Result.success(getResultDataFor(result))
     }
 
@@ -50,6 +44,7 @@ class RxWorkerExample(
     }
 
     private fun getResultDataFor(result: String): Data {
+        Thread.sleep(5000)
         return workDataOf(WORK_RESULT_KEY to result)
     }
 }
