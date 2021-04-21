@@ -20,6 +20,12 @@
         <activity android:name=".workmanager.WorkManagerActivity"/>
 
         <receiver android:name=".gps.LocationBroadcastReceiver" />
-    </application>
 
+        <activity android:name=".alarms.AlarmActivity"/>
+        <receiver
+            android:name=".alarms.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
+    </application>
 </manifest>
