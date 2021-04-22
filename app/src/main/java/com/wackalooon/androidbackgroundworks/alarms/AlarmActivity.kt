@@ -44,7 +44,7 @@ class AlarmActivity : AppCompatActivity() {
         // Set with system Alarm Service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = AlarmReceiver.createIntent(this, "Background exact idle alarm")
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0)
             alarmManager.setExactAndAllowWhileIdle(
                 alarmType,
                 alarmTimeAtUTC,
@@ -54,21 +54,19 @@ class AlarmActivity : AppCompatActivity() {
         // schedule exact but with exception of doze modes
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = AlarmReceiver.createIntent(this, "Background exact alarm")
-            // call getBroadcast, otherwise doesn't work
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(this, 2, intent, 0)
             alarmManager.setExact(
                 alarmType,
-                alarmTimeAtUTC,
+                alarmTimeAtUTC+1000,
                 pendingIntent
             )
         }
         // after API 19 works as inexact, i.e. alarms will trigger after alarmTimeAtUTC
         val intent = AlarmReceiver.createIntent(this, "Background inexact alarm")
-        // call getBroadcast, otherwise doesn't work
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(this, 3, intent, 0)
         alarmManager.set(
             alarmType,
-            alarmTimeAtUTC,
+            alarmTimeAtUTC+2000,
             pendingIntent
         )
     }
