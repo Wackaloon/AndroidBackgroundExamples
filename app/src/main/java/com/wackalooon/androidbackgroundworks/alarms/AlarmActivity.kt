@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.wackalooon.androidbackgroundworks.R
 import kotlinx.android.synthetic.main.activity_alarm.*
 
-const val ALARM_DELAY_IN_SECOND = 5
+const val ALARM_DELAY_IN_SECOND = 10
 
 class AlarmActivity : AppCompatActivity() {
     companion object {
@@ -37,21 +37,40 @@ class AlarmActivity : AppCompatActivity() {
     private fun createBackgroundAlarm() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // create intent for the broadcast receiver
-        val intent = AlarmReceiver.createIntent(this, "Background alarm")
-        // call getBroadcast, otherwise doesn't work
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
         // Time that we want alarm to fire in UTC
         val alarmTimeAtUTC = calculateTimeForLaunch()
         // alarm type, use real-time clock that will wake up the device
         val alarmType = AlarmManager.RTC_WAKEUP
         // Set with system Alarm Service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = AlarmReceiver.createIntent(this, "Background exact idle alarm")
+            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
             alarmManager.setExactAndAllowWhileIdle(
                 alarmType,
                 alarmTimeAtUTC,
                 pendingIntent
             )
         }
+        // schedule exact but with exception of doze modes
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = AlarmReceiver.createIntent(this, "Background exact alarm")
+            // call getBroadcast, otherwise doesn't work
+            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+            alarmManager.setExact(
+                alarmType,
+                alarmTimeAtUTC,
+                pendingIntent
+            )
+        }
+        // after API 19 works as inexact, i.e. alarms will trigger after alarmTimeAtUTC
+        val intent = AlarmReceiver.createIntent(this, "Background inexact alarm")
+        // call getBroadcast, otherwise doesn't work
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        alarmManager.set(
+            alarmType,
+            alarmTimeAtUTC,
+            pendingIntent
+        )
     }
 
     /**
@@ -76,6 +95,18 @@ class AlarmActivity : AppCompatActivity() {
                 object : AlarmManager.OnAlarmListener {
                     override fun onAlarm() {
                         Toast.makeText(context, "Foreground alarm", Toast.LENGTH_LONG).show()
+                    }
+                }, handler
+            )
+            val alarmWindow3Minutes = 3 * 60 * 1000L // 3 minutes
+            alarmManager.setWindow(
+                alarmType,
+                alarmTimeAtUTC,
+                alarmWindow3Minutes,
+                tagStr,
+                object : AlarmManager.OnAlarmListener {
+                    override fun onAlarm() {
+                        Toast.makeText(context, "Foreground alarm window", Toast.LENGTH_LONG).show()
                     }
                 }, handler
             )
